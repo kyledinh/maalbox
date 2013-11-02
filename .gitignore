@@ -1,0 +1,14 @@
+*~
+*.class
+*.log
+*.swp
+*.swo
+*.iml
+*.DS_store
+.idea
+og.*
+
+*.eml
+
+build/
+binh/
