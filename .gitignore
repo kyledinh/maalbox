@@ -12,3 +12,5 @@ og.*
 
 build/
 binh/
+scala/
+__pycache__

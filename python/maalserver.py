@@ -1,30 +1,38 @@
 #!/usr/bin/env python3
 
-from datetime import datetime
 import asyncore
-from smtpd import SMTPServer
+import smtpd
+import threading
+import time
 
-class EmlServer(SMTPServer):
-   no = 0
+from flask import Flask
+
+class CustomSMTPServer(smtpd.SMTPServer):
+    
    def process_message(self, peer, mailfrom, rcpttos, data):
-      print('From %s ' % mailfrom)
-      filename = '%s-%d.eml' % (datetime.now().strftime('%Y%m%d%H%M%S'), self.no)
-      f = open(filename, 'w')
-      f.write(data)
-      f.close()
-      print('%s saved.' % filename)
-      self.no += 1
+      print('Receiving message from:', peer)
+      print('Message addressed from:', mailfrom)
+      print('Message addressed to  :', rcpttos)
+      print('Message length        :', len(data))
+      return
 
-def run():
-   print('Python SMTP server')
-   print('Quit the server with CONTROL-C.')
-   maalserver = EmlServer(('127.0.0.1', 1025), None)
-   try:
-      asyncore.loop()
-   except KeyboardInterrupt:
-      pass
+# Flask Webserver
+flaskapp = Flask(__name__)
 
-if __name__ == '__main__':
-   run()
+@app.route("/")
+def hello():
+   return "Hello World!"
+
+
+if __name__ == "__main__":
+   
+   #smtpd runs via asyncore
+   smtpServer = CustomSMTPServer(('127.0.0.1', 25), None) 
+   loop_thread = threading.Thread(target=asyncore.loop, name="Asyncore Loop")
+   loop_thread.start()
+  
+   #start the wbserver
+   flaskapp.run()  
+   print("other stuff")
 
 

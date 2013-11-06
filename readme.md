@@ -10,6 +10,7 @@ Installing setuptools, Pip and Flask
 * http://www.pip-installer.org/en/latest/installing.html
 * ez_setup.py and get-pip.py in /assets
 * edit .profile
+
 ```bash
 alias pip3='/Library/Frameworks/Python.framework/Versions/3.3/bin/pip-3.3'
 ## or
@@ -27,6 +28,11 @@ Debian
 ```
 $ sudo apt-get install python3-pip
 ```   
+
+Resources
+---------
+* http://pymotw.com/2/smtpd/index.html
+
 
 License
 -------
