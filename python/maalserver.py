@@ -16,10 +16,18 @@ class CustomSMTPServer(smtpd.SMTPServer):
       print('Message length        :', len(data))
       return
 
+# Database Cleanup
+def cleanup_db(count, name):
+   while count > 0:
+      print(name, " cleaning the db", count)
+      count -= 1
+      time.sleep(10)
+   print("cleanup_db has ended!")
+
 # Flask Webserver
 flaskapp = Flask(__name__)
 
-@app.route("/")
+@flaskapp.route("/")
 def hello():
    return "Hello World!"
 
@@ -31,8 +39,13 @@ if __name__ == "__main__":
    loop_thread = threading.Thread(target=asyncore.loop, name="Asyncore Loop")
    loop_thread.start()
   
+   cleanup_thread = threading.Thread(target=cleanup_db, args=(10, "Algo", ))
+   cleanup_thread.start()
+
    #start the wbserver
    flaskapp.run()  
-   print("other stuff")
 
-
+   #Not executed
+   loop_thread.join()
+   cleanup_thread.join()
+   print("shutdown")
