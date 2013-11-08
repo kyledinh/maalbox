@@ -9,7 +9,8 @@ import time
 from flask import Flask, render_template
 from pymongo import MongoClient
 
-# MongoDB
+# Global and configs
+flaskapp = Flask(__name__)
 mgo_client = MongoClient('localhost', 27017)
 maal_db = mgo_client['maal-database']
 
@@ -33,21 +34,26 @@ class CustomSMTPServer(smtpd.SMTPServer):
 
 # Database Cleanup
 def cleanup_db(count, name):
-   while count > 0:
+   while True:
       print(name, " cleaning the db", count)
-      count -= 1
-      time.sleep(10)
+      #count -= 1
+      time.sleep(300)
+      emails = maal_db.emails
+      time_30minago = datetime.datetime.utcnow() - datetime.timedelta(minutes=30)
+      emails.remove({"date" : { "$lt" : time_30minago }})
    print("cleanup_db has ended!")
-
 
 def getEmails():
    emails = maal_db.emails
    return emails.find()
 
+def getOldEmails():
+   emails = maal_db.emails
+   time_10minago = datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
+   return emails.find({"date" : { "$lt" : time_10minago }})
 
-# Flask Webserver
-flaskapp = Flask(__name__)
 
+# Flask Webserver Routing
 @flaskapp.route("/")
 def hello():
    return render_template("home.html")
@@ -58,10 +64,14 @@ def about():
 
 @flaskapp.route("/all")
 def all():
-   print("AAAAA")
    mails = getEmails()
    msg = "GORMDO"
-   print("BBBBB")
+   return render_template("all.html", msg=msg, emails=mails)
+
+@flaskapp.route("/old")
+def old():
+   mails = getOldEmails()
+   msg = "OLD Messsages"
    return render_template("all.html", msg=msg, emails=mails)
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
   
 {% block content %}
-  <h2>All</h2>
+  <h2>{{ msg }}</h2>
   <p>This is the data: {{ msg }} . More data, </p>
   {% for email in emails %}
      <p> !! {{ email }} </p>
