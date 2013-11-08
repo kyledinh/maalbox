@@ -11,16 +11,18 @@ from pymongo import MongoClient
 
 # Global and configs
 flaskapp = Flask(__name__)
-mgo_client = MongoClient('localhost', 27017)
-maal_db = mgo_client['maal-database']
+mgo_client = MongoClient("localhost", 27017)
+maal_db = mgo_client["maal-database"]
+SMTP_IP = "127.0.0.1"
+SMTP_PORT = 25
 
 class CustomSMTPServer(smtpd.SMTPServer):
     
    def process_message(self, peer, mailfrom, rcpttos, data):
-      print('Receiving message from:', peer)
-      print('Message addressed from:', mailfrom)
-      print('Message addressed to  :', rcpttos)
-      print('Message length        :', len(data))
+      print("Receiving message from:", peer)
+      print("Message addressed from:", mailfrom)
+      print("Message addressed to  :", rcpttos)
+      print("Message length        :", len(data))
       
       email = { "from": mailfrom,
                 "to": rcpttos[0],
@@ -29,19 +31,19 @@ class CustomSMTPServer(smtpd.SMTPServer):
 
       emails = maal_db.emails
       eid = emails.insert(email)
-      print('Inserted into db:', eid)
+      print("Inserted into db:", eid)
       return
 
 # Database Cleanup
-def cleanup_db(count, name):
+def cleanup_db(cutoff, name):
    while True:
-      print(name, " cleaning the db", count)
-      #count -= 1
+      print(name, " for emails older than ", cutoff, " minutes.")
       time.sleep(300)
       emails = maal_db.emails
-      time_30minago = datetime.datetime.utcnow() - datetime.timedelta(minutes=30)
-      emails.remove({"date" : { "$lt" : time_30minago }})
-   print("cleanup_db has ended!")
+      time_ago = datetime.datetime.utcnow() - datetime.timedelta(minutes=cutoff)
+      found = emails.count()
+      print("Found ", found, " past cutoff, set to be removed.")
+      emails.remove({"date" : { "$lt" : time_ago }})
 
 def getEmails():
    emails = maal_db.emails
@@ -65,7 +67,7 @@ def about():
 @flaskapp.route("/all")
 def all():
    mails = getEmails()
-   msg = "GORMDO"
+   msg = "ALL"
    return render_template("all.html", msg=msg, emails=mails)
 
 @flaskapp.route("/old")
@@ -77,11 +79,11 @@ def old():
 if __name__ == "__main__":
    
    #smtpd runs via asyncore
-   smtpServer = CustomSMTPServer(('127.0.0.1', 25), None) 
+   smtpServer = CustomSMTPServer((SMTP_IP, SMTP_PORT), None) 
    loop_thread = threading.Thread(target=asyncore.loop, name="Asyncore Loop")
    loop_thread.start()
   
-   cleanup_thread = threading.Thread(target=cleanup_db, args=(10, "Algo", ))
+   cleanup_thread = threading.Thread(target=cleanup_db, args=(60, "DB Cleanup Thread", ))
    cleanup_thread.start()
 
    #start the wbserver

@@ -22,6 +22,8 @@ sudo python3 ez_setup.py
 curl -O https://raw.github.com/pypa/pip/master/contrib/get-pip.py
 sudo python3 get-pip.py 
 pip3 install Flask 
+
+pip3 install -U selenium
 ```   
 
 Debian
