@@ -10,11 +10,20 @@ from flask import Flask, render_template
 from pymongo import MongoClient
 
 # Global and configs
-flaskapp = Flask(__name__)
-mgo_client = MongoClient("localhost", 27017)
-maal_db = mgo_client["maal-database"]
 SMTP_IP = "127.0.0.1"
 SMTP_PORT = 25
+FLASK_SERVER = "localhost:5000"
+MONGO_DB = "maal-database"
+MONGO_SERVER = "localhost"
+
+mongo_client = MongoClient(MONGO_SERVER, 27017)
+mongo_db = mongo_client[MONGO_DB]
+
+flaskapp = Flask(__name__)
+flaskapp.config.update(
+   SERVER_NAME=FLASK_SERVER,
+   DEBUG=False
+)
 
 class CustomSMTPServer(smtpd.SMTPServer):
     
@@ -29,7 +38,7 @@ class CustomSMTPServer(smtpd.SMTPServer):
                 "data": data,
                 "date": datetime.datetime.utcnow() }
 
-      emails = maal_db.emails
+      emails = mongo_db.emails
       eid = emails.insert(email)
       print("Inserted into db:", eid)
       return
@@ -38,19 +47,21 @@ class CustomSMTPServer(smtpd.SMTPServer):
 def cleanup_db(cutoff, name):
    while True:
       print(name, " for emails older than ", cutoff, " minutes.")
-      time.sleep(300)
-      emails = maal_db.emails
+      time.sleep(300) # 300 = 5 minutes
+      emails = mongo_db.emails
       time_ago = datetime.datetime.utcnow() - datetime.timedelta(minutes=cutoff)
-      found = emails.count()
+      found = emails.find({"date" : { "$lt" : time_ago }}).count()
       print("Found ", found, " past cutoff, set to be removed.")
-      emails.remove({"date" : { "$lt" : time_ago }})
+      if found > 0:
+         emails.remove({"date" : { "$lt" : time_ago }})
+         print("Deleted ", found, " emails.")
 
 def getEmails():
-   emails = maal_db.emails
+   emails = mongo_db.emails
    return emails.find()
 
 def getOldEmails():
-   emails = maal_db.emails
+   emails = mongo_db.emails
    time_10minago = datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
    return emails.find({"date" : { "$lt" : time_10minago }})
 
@@ -78,18 +89,20 @@ def old():
 
 if __name__ == "__main__":
    
-   #smtpd runs via asyncore
+   # smtpd runs via asyncore
    smtpServer = CustomSMTPServer((SMTP_IP, SMTP_PORT), None) 
-   loop_thread = threading.Thread(target=asyncore.loop, name="Asyncore Loop")
-   loop_thread.start()
-  
+   smtp_thread = threading.Thread(target=asyncore.loop, name="Asyncore Loop")
    cleanup_thread = threading.Thread(target=cleanup_db, args=(60, "DB Cleanup Thread", ))
-   cleanup_thread.start()
 
-   #start the wbserver
-   flaskapp.run()  
+   # start the wbserver and threads
+   try:
+      smtp_thread.start()
+      cleanup_thread.start()     
+      flaskapp.run() 
 
-   #Not executed
-   loop_thread.join()
-   cleanup_thread.join()
-   print("shutdown")
+   except KeyboardInterrupt:
+      print("attempting to close threads...")
+      smtp_thread.join()
+      cleanup_thread.join()
+      flaskapp.join()
+      print("threads successfully closed")   
