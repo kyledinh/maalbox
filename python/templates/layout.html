@@ -1,21 +1,56 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
    <head>
-      <title>Maalbox</title>    
-      <strong><link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"></strong>
+      <title>Maalbox App</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet"/>
+      <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" />
+      <link href="{{ url_for('static', filename='img/favicon.ico') }}" rel="SHORTCUT ICON" />
    </head>
-   <body>
-   
-   <header>
-      <div class="container">
-         <h1 class="logo">Maalbox</h1>
+
+   <body ng-app="app">
+   <!-- NAVBAR -->   
+   <div class="navbar navbar-static-top navbar-inverse" role="navigation">   
+       <div class="container">
+      
+      <!-- For screen readers and mobiles -->
+      <div class="navbar-header">
+         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+         </button>
+
+         <a class="navbar-brand" id="nav_home" href="/">Maalbox</a>
+         <p class="navbar-text"></p>
       </div>
-   </header> 
-     
-   <div class="container">
-      {% block content %}
-      {% endblock %}
+
+      <div class="collapse navbar-collapse navbar-ex1-collapse">
+         <ul class="nav navbar-nav">
+            <li><a id="nav_all" href="all">All</a></li>
+            <li><a id="nav_user" href="user">User</a></li>
+            <li><a id="nav_reg" href="register">Register</a></li>
+         </ul>
+      </div>
+       
+      </div> <!-- End of container -->
    </div>
-     
+   <!-- end navbar -->
+
+   <!-- MAIN CONTAINER -->
+   <div class="container">
+      <div class="view-container">
+         {% block content %}
+         {% endblock %}
+      </div>     
+   </div>
+   <!-- main container -->
+
+   <!-- SCRIPTS -->
+   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+   <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>   
+   <!-- scripts -->   
+
    </body>
 </html>
