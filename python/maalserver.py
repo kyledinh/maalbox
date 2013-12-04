@@ -98,7 +98,7 @@ if __name__ == "__main__":
    try:
       smtp_thread.start()
       cleanup_thread.start()     
-      flaskapp.run() 
+      flaskapp.run(host='0.0.0.0') 
 
    except KeyboardInterrupt:
       print("attempting to close threads...")
