@@ -60,6 +60,10 @@ def getEmails():
    emails = mongo_db.emails
    return emails.find()
 
+def findEmails():
+   emails = mongo_db.emails
+   return emails.find_one({})
+
 def getOldEmails():
    emails = mongo_db.emails
    time_10minago = datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
@@ -70,6 +74,12 @@ def getOldEmails():
 @flaskapp.route("/")
 def hello():
    return render_template("home.html")
+
+@flaskapp.route("/mail/<username>")
+def mail(username):
+   mails = findEmails(username)
+   msg = username 
+   return render_template("all.html", msg=msg, emails=mails)
 
 @flaskapp.route("/about")
 def about():
