@@ -16,7 +16,7 @@ server.set_debuglevel(True) # show communication with the server
 print("smtp server.....")
 
 try:
-    server.sendmail('ed@fiveandnine.com', ['davis@dinhoooooog.com'], msg.as_string())
+    server.sendmail('jack@fiveandnine.com', ['davis@dinhoo.com'], msg.as_string())
     print("sending......")
 finally:
     server.quit()

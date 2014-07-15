@@ -1,19 +1,21 @@
-Install
--------
+## Install
 * PyMongo `pip3 install pymongo` 
 * Flash `pip3 install flask`
 * Selenium `pip3 install selenium`
 
-MongoDB
--------
+## MongoDB
 * Run the server `/bin/start_mongo.sh`
 
 
-Run Maalbox
------------
+## Run Maalbox
 * `sudo python3 ./maalserver.py`
 
-Send Emails
------------
+## Send Emails
 * `bin/send_email.py`
 
+## Vagrant
+
+```
+cd vagrant
+vagrant up
+```
