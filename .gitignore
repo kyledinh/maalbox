@@ -10,6 +10,7 @@ og.*
 
 *.eml
 *.vagrant
+node_modules
 
 build/
 binh/

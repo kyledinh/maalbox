@@ -12,7 +12,7 @@ from pymongo import MongoClient
 # Global and configs
 SMTP_IP = "127.0.0.1"
 SMTP_PORT = 25
-FLASK_SERVER = "localhost:5000"
+FLASK_SERVER = "localhost:8000"
 MONGO_DB = "maal-database"
 MONGO_SERVER = "localhost"
 
@@ -26,13 +26,13 @@ flaskapp.config.update(
 )
 
 class CustomSMTPServer(smtpd.SMTPServer):
-    
+
    def process_message(self, peer, mailfrom, rcpttos, data):
       print("Receiving message from:", peer)
       print("Message addressed from:", mailfrom)
       print("Message addressed to  :", rcpttos)
       print("Message length        :", len(data))
-      
+
       email = { "from": mailfrom,
                 "to": rcpttos[0],
                 "data": data,
@@ -72,13 +72,13 @@ def getOldEmails():
 
 # Flask Webserver Routing
 @flaskapp.route("/")
-def hello():
+def index():
    return render_template("home.html")
 
 @flaskapp.route("/mail/<username>")
 def mail(username):
    mails = findEmails(username)
-   msg = username 
+   msg = username
    return render_template("all.html", msg=msg, emails=mails)
 
 @flaskapp.route("/about")
@@ -98,21 +98,22 @@ def old():
    return render_template("all.html", msg=msg, emails=mails)
 
 if __name__ == "__main__":
-   
+
    # smtpd runs via asyncore
-   smtpServer = CustomSMTPServer((SMTP_IP, SMTP_PORT), None) 
+   #smtpServer = CustomSMTPServer((SMTP_IP, SMTP_PORT), None)
    smtp_thread = threading.Thread(target=asyncore.loop, name="Asyncore Loop")
    cleanup_thread = threading.Thread(target=cleanup_db, args=(60, "DB Cleanup Thread", ))
 
    # start the wbserver and threads
    try:
       smtp_thread.start()
-      cleanup_thread.start()     
-      flaskapp.run(host='0.0.0.0') 
+      cleanup_thread.start()
+      flaskapp.debug = True
+      flaskapp.run(host='0.0.0.0')
 
    except KeyboardInterrupt:
       print("attempting to close threads...")
       smtp_thread.join()
       cleanup_thread.join()
       flaskapp.join()
-      print("threads successfully closed")   
+      print("threads successfully closed")
