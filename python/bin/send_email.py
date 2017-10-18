@@ -11,7 +11,7 @@ msg['To'] = email.utils.formataddr(('Recipient', 'kroooooo@example.com'))
 msg['From'] = email.utils.formataddr(('Author', 'sender@example.com'))
 msg['Subject'] = 'Simple test message'
 
-server = smtplib.SMTP('127.0.0.1', 25)
+server = smtplib.SMTP('localhost')
 server.set_debuglevel(True) # show communication with the server
 print("smtp server.....")
 
