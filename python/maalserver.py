@@ -100,8 +100,8 @@ def old():
 if __name__ == "__main__":
 
    # smtpd runs via asyncore
-   #smtpServer = CustomSMTPServer((SMTP_IP, SMTP_PORT), None)
-   smtp_thread = threading.Thread(target=asyncore.loop, name="Asyncore Loop")
+   smtpServer = CustomSMTPServer((SMTP_IP, SMTP_PORT), None)
+   smtp_thread = threading.Thread(target=asyncore.loop, name="SMTP Thread")
    cleanup_thread = threading.Thread(target=cleanup_db, args=(60, "DB Cleanup Thread", ))
 
    # start the wbserver and threads
